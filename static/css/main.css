@@ -1,0 +1,700 @@
+/* 全局變數 */
+:root {
+    --primary-color: #2c3e50; /* 深藍色 */
+    --secondary-color: #34495e; /* 更深的藍灰色 */
+    --accent-color: #3498db; /* 亮藍色 */
+    --text-color: #333; /* 深灰色文本 */
+    --light-gray: #f5f5f5; /* 淺灰色背景 */
+    --white-color: #ffffff; /* 白色背景 */
+    --border-color: #ddd; /* 淺邊框色 */
+    --spacing-xsmall: 0.25rem; /* 4px */
+    --spacing-small: 0.5rem; /* 8px */
+    --spacing-medium: 1rem; /* 16px */
+    --spacing-large: 2rem; /* 32px */
+    --border-radius: 4px;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --error-color: #e74c3c;
+}
+
+/* 基礎樣式 */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans TC', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--light-gray); /* 頁面整體背景色 */
+}
+
+#root, main {
+    min-height: 100vh; /* 確保內容區域至少佔滿整個視窗高度 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 導航欄樣式 */
+.header {
+    background-color: var(--primary-color);
+    padding: var(--spacing-medium) var(--spacing-large);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* 允許在小螢幕上換行 */
+    color: var(--white-color); /* 導航欄文字顏色 */
+}
+
+.header h1 a {
+    color: var(--white-color); /* 導航欄標題連結顏色 */
+    text-decoration: none;
+    font-size: 1.8em;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+.header h1 a:hover {
+    color: var(--accent-color);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium);
+}
+
+.nav-links span {
+    color: var(--white-color);
+}
+
+.nav-link {
+    color: var(--white-color); /* 導航連結顏色 */
+    text-decoration: none;
+    padding: var(--spacing-small);
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--accent-color);
+}
+
+.form-control-nav {
+    padding: var(--spacing-small);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    margin-right: var(--spacing-small);
+    background-color: var(--white-color);
+    color: var(--text-color);
+}
+
+.nav-btn {
+    padding: var(--spacing-small) var(--spacing-medium);
+    background-color: var(--accent-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.nav-btn:hover {
+    background-color: #2980b9;
+}
+
+/* 容器樣式 */
+.container {
+    max-width: 1200px; /* 設定最大寬度 */
+    margin: var(--spacing-large) auto; /* 讓內容置中，並增加頂部間距 */
+    padding: var(--spacing-large);
+    background-color: var(--white-color); /* 內容區域背景色 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+    border-radius: var(--border-radius);
+    flex-grow: 1; /* 讓容器佔據所有可用空間 */
+}
+
+/* 移除舊的 .navbar 樣式 */
+.navbar {
+    display: none;
+}
+
+/* 卡片樣式 (通用於作品和資料夾) */
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 調整最小寬度 */
+    gap: var(--spacing-medium);
+    margin-top: var(--spacing-large);
+}
+
+.project-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.project-card {
+    background: var(--white-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    height: 100%; /* 確保卡片等高 */
+    display: flex;
+    flex-direction: column;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+}
+
+.project-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.project-card-content {
+    padding: var(--spacing-medium);
+    flex-grow: 1; /* 讓內容區域佔據所有可用空間 */
+}
+
+.project-card h3,
+.project-card h4 {
+    margin: 0 0 var(--spacing-small);
+    color: var(--text-color);
+    font-size: 1.2em; /* 調整標題大小 */
+}
+
+.project-card p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* 表單樣式 */
+.form-group {
+    margin-bottom: var(--spacing-medium);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    color: var(--white-color);
+    width: auto; /* 調整為自動寬度 */
+    margin-top: var(--spacing-large);
+    display: inline-block; /* 讓按鈕並排 */
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-danger {
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* 錯誤與成功訊息 */
+.error-message {
+    color: #e74c3c;
+    padding: var(--spacing-small);
+    margin-bottom: var(--spacing-medium);
+    border: 1px solid #e74c3c;
+    border-radius: var(--border-radius);
+    background-color: #fde8e8;
+}
+
+.success-message {
+    color: #27ae60;
+    padding: var(--spacing-small);
+    margin-bottom: var(--spacing-medium);
+    border: 1px solid #27ae60;
+    border-radius: var(--border-radius);
+    background-color: #e8fdeb;
+}
+
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-medium) 0;
+}
+
+.messages li {
+    padding: var(--spacing-small);
+    margin-bottom: var(--spacing-small);
+    border-radius: var(--border-radius);
+    font-weight: bold;
+}
+
+.messages li.success {
+    background-color: var(--success-color);
+    color: var(--white-color);
+}
+
+.messages li.error {
+    background-color: var(--error-color);
+    color: var(--white-color);
+}
+
+/* 工具類 */
+.text-center {
+    text-align: center;
+}
+
+.mt-3 {
+    margin-top: var(--spacing-medium);
+}
+
+.mb-3 {
+    margin-bottom: var(--spacing-medium);
+}
+
+/* 通用區塊標題與返回連結 */
+.form-header,
+.profile-header {
+    text-align: center;
+    margin-bottom: var(--spacing-large);
+}
+
+.form-header h2,
+.profile-header h2 {
+    color: var(--text-color);
+    margin-bottom: var(--spacing-small);
+    font-size: 2em; /* 調整標題大小 */
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: var(--spacing-large);
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+    transition: text-decoration 0.3s ease;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* 收藏按鈕樣式 (如果不同於 btn-primary) */
+.favorite-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
+}
+
+/* 資料夾列表樣式 */
+.folder-list {
+    list-style: none;
+    padding: 0;
+}
+
+.folder-item {
+    padding: var(--spacing-medium);
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.folder-item:hover {
+    background-color: var(--light-gray);
+}
+
+/* 搜尋結果樣式 */
+.search-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-medium);
+    padding: var(--spacing-medium);
+}
+
+/* 個人資料頁面特定樣式 */
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-large);
+    margin-bottom: var(--spacing-large);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.section {
+    margin-bottom: var(--spacing-large);
+}
+
+.section h3 {
+    color: var(--text-color);
+    margin-bottom: var(--spacing-medium);
+    padding-bottom: var(--spacing-small);
+    border-bottom: 2px solid var(--border-color);
+}
+
+/* 專案詳情頁特定樣式 */
+.project-meta {
+    text-align: center;
+    color: #666;
+    margin-bottom: var(--spacing-large);
+    font-size: 0.9em;
+}
+
+.key-images-gallery {
+    margin-bottom: var(--spacing-large);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-small);
+}
+
+.key-images-gallery img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+}
+
+.project-description {
+    margin-bottom: var(--spacing-large);
+}
+
+.project-description p {
+    margin-bottom: 1em;
+}
+
+.project-description img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: var(--spacing-medium) auto;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.all-images-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-medium);
+    margin-top: var(--spacing-large);
+    border-top: 1px solid #eee;
+    padding-top: var(--spacing-medium);
+}
+
+.all-images-gallery img {
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    border-radius: var(--border-radius);
+}
+
+.bookmark-section {
+    text-align: center;
+    margin-bottom: var(--spacing-large);
+}
+
+.bookmarked-message {
+    color: green;
+    font-weight: bold;
+    margin-bottom: var(--spacing-small);
+}
+
+.bookmark-form {
+    display: inline-block;
+}
+
+/* 媒體查詢 (響應式設計) */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+    }
+    .nav-links {
+        margin-top: var(--spacing-medium);
+    }
+    .nav-links form,
+    .nav-links span {
+        width: 100%;
+        text-align: center;
+    }
+    .nav-links a {
+        margin: 0 var(--spacing-small);
+    }
+    .container {
+        padding: var(--spacing-medium);
+    }
+    .card-img-top {
+        height: 150px;
+    }
+    .project-grid {
+        grid-template-columns: 1fr;
+    }
+    .key-images-gallery,
+    .all-images-gallery {
+        grid-template-columns: 1fr;
+    }
+    .profile-stats {
+        flex-wrap: wrap;
+    }
+}
+
+/* 動畫效果 */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 首頁特點作品樣式 */
+.featured-projects {
+    margin-bottom: var(--spacing-large);
+}
+
+/* 首頁與導航欄相關的媒體查詢 */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+    }
+    .nav-links {
+        margin-top: var(--spacing-medium);
+    }
+    .nav-links a {
+        margin: 0 var(--spacing-small);
+    }
+}
+
+/* 圖片載入失敗時的替代樣式 */
+img[src=""], img:not([src]), img[src="undefined"] {
+    visibility: hidden;
+    position: relative;
+}
+
+img[src=""]::after, img:not([src])::after, img[src="undefined"]::after {
+    content: "無圖片";
+    visibility: visible;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+/* 頁尾樣式 */
+footer {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+}
+
+footer p {
+    text-align: center;
+}
+
+/* Sections and buttons not specific to cards */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem; /* Using 2rem for consistency */
+}
+.section-header h2 {
+    margin: 0;
+    color: var(--text-color);
+}
+.add-button {
+    background-color: var(--secondary-color); /* Use secondary color for actions */
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+}
+.add-button:hover {
+    background-color: #2980b9; /* Darker secondary color */
+}
+
+/* Grid for projects and folders */
+.project-grid, .folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+/* Base card styles (for both project and folder) */
+.project-card, .folder-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-card:hover, .folder-card:hover {
+    transform: translateY(-5px);
+}
+
+.project-card img, .folder-card img {
+    width: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.project-card img {
+    height: 200px;
+}
+
+.folder-card img {
+    height: 180px; /* Slightly different height for folders */
+}
+
+.project-card .card-content, .folder-card .card-content {
+    padding: 1rem;
+    flex-grow: 1;
+}
+
+.project-card h3, .folder-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.project-card p, .folder-card p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Card actions (buttons at bottom) */
+.card-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+.action-button {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.8em;
+    transition: background-color 0.3s;
+}
+.action-button.delete {
+    background-color: var(--error-color);
+}
+.action-button:hover {
+    opacity: 0.9;
+}
+
+.no-items {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .nav-link {
+        width: 100%;
+        text-align: center;
+    }
+
+    .project-grid, .folder-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .project-card h3, .folder-card h3 {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-grid, .folder-grid {
+        grid-template-columns: 1fr;
+    }
+    .folder-card img {
+        height: 150px;
+    }
+} 

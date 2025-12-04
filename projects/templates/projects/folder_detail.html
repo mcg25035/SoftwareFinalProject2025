@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ folder.name }} - ArchDaily{% endblock %}
+
+{% block content %}
+    <div class="form-header">
+        <h2>{{ folder.name }}</h2>
+        <p>{{ folder.description }}</p>
+    </div>
+
+    <h3>資料夾內容 ({{ bookmarks_in_folder.count }} 個項目)</h3>
+    {% if bookmarks_in_folder %}
+        <div class="project-grid">
+            {% for bookmark in bookmarks_in_folder %}
+                <a href="{% url 'project_detail' bookmark.project.pk %}" style="text-decoration: none; color: inherit;">
+                    <div class="project-card">
+                        {% if bookmark.display_image_url %}
+                            <img src="{{ bookmark.display_image_url }}" alt="{{ bookmark.project.title }}" loading="lazy">
+                        {% endif %}
+                        <div class="project-card-content">
+                            <h4>{{ bookmark.project.title }}</h4>
+                            <p>{{ bookmark.project.author.username }} | {{ bookmark.project.project_type }}</p>
+                            <p>收藏數: {{ bookmark.project.bookmarked_by.count }}</p>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-message">此資料夾目前沒有任何收藏。</p>
+    {% endif %}
+
+    <a href="{% url 'folder_list' %}" class="back-link">返回資料夾列表</a>
+{% endblock content %}
+
+{% block extra_styles %}{% endblock extra_styles %} 

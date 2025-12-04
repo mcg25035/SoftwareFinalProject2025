@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}刪除資料夾{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">確認刪除資料夾</h2>
+                    <p class="text-center">您確定要刪除資料夾 "{{ folder.name }}" 嗎？</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100">確認刪除</button>
+                        <a href="{% url 'folder_list' %}" class="btn btn-secondary w-100 mt-2">取消</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

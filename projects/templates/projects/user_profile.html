@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{{ user.username }} 的個人資料 - ArchDaily{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="profile-section">
+        <h2>{{ user.username }} 的個人資料</h2>
+        <p>電子郵件: {{ user.email }}</p>
+        <p>註冊時間: {{ user.date_joined|date:"Y-m-d" }}</p>
+
+        <h3>修改電子郵件</h3>
+        <form method="post" action="{% url 'user_profile' %}">
+            {% csrf_token %}
+            <input type="hidden" name="update_email" value="true"> {# Hidden input to identify this form submission #}
+            <div class="form-group">
+                {{ email_form.email|attr:"class:form-control" }}
+                {% if email_form.email.errors %}
+                    {% for error in email_form.email.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">更新電子郵件</button>
+        </form>
+    </div>
+
+    <div class="profile-section">
+        <h2>我的作品</h2>
+        <div class="project-grid">
+            {% for project in uploaded_projects %}
+            <div class="project-card">
+                <a href="{% url 'project_detail' project.id %}">
+                    {% if project.first_image_url %}
+                        <img src="{{ project.first_image_url }}" alt="{{ project.title }}" loading="lazy">
+                    {% else %}
+                        <!-- 不再渲染 img 標籤，依賴 CSS 處理無圖片情況 -->
+                    {% endif %}
+                    <div class="card-content">
+                        <h3>{{ project.title }}</h3>
+                        <p>{{ project.description|truncatechars:100 }}</p>
+                        <p>收藏數: {{ project.bookmark_count }}</p>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p>目前沒有作品。</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>我的收藏</h2>
+        <div class="project-grid">
+            {% for bookmark in user_bookmarks %}
+            <div class="project-card">
+                <a href="{% url 'project_detail' bookmark.project.id %}">
+                    {% if bookmark.project.first_image_url %}
+                        <img src="{{ bookmark.project.first_image_url }}" alt="{{ bookmark.project.title }}" loading="lazy">
+                    {% else %}
+                        <!-- 不再渲染 img 標籤，依賴 CSS 處理無圖片情況 -->
+                    {% endif %}
+                    <div class="card-content">
+                        <h3>{{ bookmark.project.title }}</h3>
+                        <p>{{ bookmark.project.description|truncatechars:100 }}</p>
+                        <p>作者: {{ bookmark.project.user.username }}</p>
+                        <p>收藏數: {{ bookmark.project.bookmark_count }}</p>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p>目前沒有收藏的作品。</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>我的資料夾</h2>
+        <div class="folder-grid">
+            {% for folder in folders %}
+            <div class="folder-card">
+                <a href="{% url 'folder_detail' folder.id %}">
+                    {% if folder.cover_image_url %}
+                        <img src="{{ folder.cover_image_url }}" alt="{{ folder.name }}" loading="lazy">
+                    {% else %}
+                        <!-- 不再渲染 img 標籤，依賴 CSS 處理無圖片情況 -->
+                    {% endif %}
+                    <div class="card-content">
+                        <h3>{{ folder.name }}</h3>
+                        <p>收藏數: {{ folder.bookmarks.count }}</p>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p>目前沒有資料夾。</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_styles %}{% endblock extra_styles %} 

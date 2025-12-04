@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}我的收藏/資料夾 - ArchDaily{% endblock %}
+
+{% block content %}
+    <div class="section-header">
+        <h2>我的資料夾</h2>
+        <a href="{% url 'create_folder' %}" class="add-button">建立新資料夾</a>
+    </div>
+    
+    <div class="folder-grid">
+        {% for folder in folders %}
+            <div class="folder-card">
+                <a href="{% url 'folder_detail' folder.id %}">
+                    {% if folder.cover_image %}
+                        <img src="{{ folder.cover_image.url }}" alt="{{ folder.name }}" loading="lazy">
+                    {% else %}
+                        <!-- 不再渲染 img 標籤，依賴 CSS 處理無圖片情況 -->
+                    {% endif %}
+                    <div class="card-content">
+                        <h3>{{ folder.name }} ({{ folder.bookmarks.count }})</h3>
+                        <p>{{ folder.description|truncatechars:100 }}</p>
+                    </div>
+                </a>
+                <div class="card-actions">
+                    <a href="{% url 'edit_folder' folder.id %}" class="action-button">編輯</a>
+                    <form action="{% url 'delete_folder' folder.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-button delete" onclick="return confirm('確定要刪除這個資料夾嗎？此操作將同時移除資料夾內的所有收藏，但不會刪除作品本身。')">刪除</button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <p class="no-items">目前沒有資料夾。</p>
+        {% endfor %}
+    </div>
+
+    <div class="section-header" style="margin-top: 2rem;">
+        <h2>我的收藏</h2>
+    </div>
+
+    <div class="project-grid">
+        {% for bookmark in user_bookmarks %}
+            <div class="project-card">
+                <a href="{% url 'project_detail' bookmark.project.id %}">
+                    {% if bookmark.cover_image %}
+                        <img src="{{ bookmark.cover_image.url }}" alt="{{ bookmark.project.title }}" loading="lazy">
+                    {% elif bookmark.project.images.first %}
+                        <img src="{{ bookmark.project.images.first.image.url }}" alt="{{ bookmark.project.title }}" loading="lazy">
+                    {% else %}
+                        <!-- 不再渲染 img 標籤，依賴 CSS 處理無圖片情況 -->
+                    {% endif %}
+                    <div class="card-content">
+                        <h3>{{ bookmark.project.title }}</h3>
+                        <p>{{ bookmark.project.description|truncatechars:100 }}</p>
+                        <p>作者: {{ bookmark.project.author.username }}</p>
+                        <p>收藏數: {{ bookmark.project.bookmarked_by.count }}</p>
+                    </div>
+                </a>
+                <div class="card-actions">
+                    <form action="{% url 'remove_bookmark' bookmark.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-button delete" onclick="return confirm('確定要從收藏中移除這個作品嗎？')">移除收藏</button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <p class="no-items">您還沒有收藏任何作品。</p>
+        {% endfor %}
+    </div>
+{% endblock content %}
+
+{% block extra_styles %}{% endblock extra_styles %} 

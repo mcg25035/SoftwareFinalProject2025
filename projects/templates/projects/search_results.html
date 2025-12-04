@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}搜尋結果 - ArchDaily{% endblock %}
+
+{% block content %}
+<div class="search-results-container">
+    <h2 class="search-query-title">搜尋結果: "{{ request.GET.q }}"</h2>
+    {% if projects %}
+        <div class="project-grid">
+            {% for project in projects %}
+                <a href="{% url 'project_detail' project.id %}" class="project-card-link">
+                    <div class="project-card">
+                        {% if project.images.first %}
+                            <img src="{{ project.images.first.image.url }}" alt="{{ project.title }}" loading="lazy">
+                        {% else %}
+                            <!-- 不再渲染 img 標籤，依賴 CSS 處理無圖片情況 -->
+                        {% endif %}
+                        <div class="card-content">
+                            <h3>{{ project.title }}</h3>
+                            <p>{{ project.description|truncatechars:100 }}</p>
+                            <p>作者: {{ project.user.username }}</p>
+                            <p>收藏數: {{ project.bookmark_count }}</p>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-results-message">
+            <p>找不到符合 "{{ request.GET.q }}" 的作品。</p>
+            <p>請嘗試使用其他關鍵字搜尋。</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block extra_styles %}
+<style>
+    .search-results-container {
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .search-query-title {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+    }
+
+    .no-results-message {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .no-results-message p {
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock extra_styles %} 

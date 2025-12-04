@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{{ project.title }} - ArchDaily{% endblock %}
+
+{% block content %}
+<div class="project-detail-container">
+    <div class="project-header-section">
+        <h1 class="project-title">{{ project.title }}</h1>
+        {% if user.is_authenticated and user == project.author %}
+            <div class="mb-3">
+                <a href="{% url 'edit_project' project.pk %}" class="btn btn-primary btn-sm mb-2">編輯專案</a>
+                <form action="{% url 'delete_project' project.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('確定要刪除這個作品嗎？此操作不可恢復。')">刪除專案</button>
+                </form>
+            </div>
+        {% endif %}
+        <p class="project-meta">
+            作者: {{ project.author.username }} |
+            類型: {{ project.project_type }} |
+            地區: {{ project.region }}
+            {% if project.area %} | 面積: {{ project.area }} m²{% endif %}
+            | 收藏數量: {{ project.bookmarked_by.count }}
+        </p>
+    </div>
+
+    {% if project.description %}
+        <div class="project-description-section">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                <h3 class="section-title mb-0">專案描述</h3>
+                {% if user.is_authenticated %}
+                    <div class="m-0 p-0">
+                        {% if is_bookmarked %}
+                            <form action="{% url 'remove_bookmark' bookmark_pk=bookmark_pk %}" method="post" class="bookmark-form">
+                                {% csrf_token %}
+                                <button type="submit" class="bookmark-btn" aria-label="取消收藏" data-bs-toggle="tooltip" title="取消收藏">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'add_to_folder' project_pk=project.pk %}" method="post" class="bookmark-form">
+                                {% csrf_token %}
+                                <button type="submit" class="bookmark-btn" aria-label="收藏專案" data-bs-toggle="tooltip" title="加入收藏">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="description-content">{{ project.description|safe }}</div>
+        </div>
+    {% endif %}
+
+    {% if all_images %}
+        <div class="project-image-gallery all-images-gallery">
+            <h3 class="section-title">所有圖片</h3>
+            <div class="all-images-grid">
+                {% for image in all_images %}
+                    <img src="{{ image.image.url }}" alt="{{ project.title }} - 圖片 {{ forloop.counter }}" loading="lazy">
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if key_images %}
+        <div class="project-image-gallery key-images-gallery">
+            <h3 class="section-title">關鍵圖片</h3>
+            {% for image in key_images %}
+                <img src="{{ image.image.url }}" alt="{{ project.title }} - 圖片" loading="lazy">
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="back-to-home-section mt-4 mb-4">
+        <a href="{% url 'home' %}" class="btn btn-primary btn-lg">返回首頁</a>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_styles %}
+<style>
+    .project-detail-container {
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .project-header-section {
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+    }
+
+    .project-title {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .project-meta {
+        font-size: 1.1rem;
+        color: #555;
+    }
+
+    .project-description-section {
+        margin-bottom: 30px;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .description-content {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .project-image-gallery {
+        margin-bottom: 30px;
+    }
+
+    .project-image-gallery img {
+        max-width: 100%;
+        height: auto; /* Maintain aspect ratio */
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: block; /* Ensures images take full width and stack */
+    }
+
+    .all-images-gallery .section-title {
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    .all-images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .all-images-grid img {
+        width: 100%;
+        height: 200px; /* Fixed height for consistency in grid */
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .bookmark-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: var(--light-gray);
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .bookmark-form {
+    }
+
+    .bookmark-btn {
+        border: none;
+        background: none;
+        color: var(--primary-color);
+    }
+
+    .bookmark-btn:hover {
+        color: var(--secondary-color);
+    }
+
+    .bookmark-btn i {
+        font-size: 1.5rem; /* Match btn-sm font-size for better vertical alignment */
+        vertical-align: middle; /* Ensures the icon is vertically aligned */
+    }
+
+    .back-to-home-section {
+        text-align: center;
+        /* margin-top: 40px; */
+    }
+</style>
+{% endblock extra_styles %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        // Your existing add image form logic
+        const addImageBtn = document.getElementById('add-image-form');
+        const formsetContainer = document.getElementById('image-formset-container');
+        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+
+        if (addImageBtn) {
+            addImageBtn.addEventListener('click', function() {
+                const currentForms = document.querySelectorAll('.image-form-item');
+                let formCount = currentForms.length;
+
+                const newForm = currentForms[0].cloneNode(true);
+                newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)/g, `form-${formCount}`);
+                newForm.innerHTML = newForm.innerHTML.replace(/id_form-(\d+)/g, `id_form-${formCount}`);
+                newForm.innerHTML = newForm.innerHTML.replace(/name=\"form-(\d+)/g, `name=\"form-${formCount}`);
+                
+                // Clear input values for new form
+                newForm.querySelectorAll('input').forEach(input => {
+                    if (input.type !== 'checkbox' && input.type !== 'hidden') {
+                        input.value = '';
+                    }
+                    if (input.type === 'checkbox') {
+                        input.checked = false; // Uncheck checkboxes
+                    }
+                });
+                newForm.querySelectorAll('img').forEach(img => img.remove()); // Remove image previews
+                newForm.querySelector('h5').textContent = `圖片 ${formCount + 1}`;
+
+                // For Django's formset, ensure the DELETE checkbox is present for new forms too
+                // if it's an edit view and it was present in the original clone.
+                // We also need to re-add the hidden ID field for new forms if it was removed.
+                const idField = newForm.querySelector('input[name$=\"-id\"]');
+                if (idField) idField.value = ''; // Ensure ID is empty for new forms
+                
+                formsetContainer.appendChild(newForm);
+                totalForms.value = parseInt(totalForms.value) + 1;
+            });
+        }
+    });
+</script>
+{% endblock extra_js %}

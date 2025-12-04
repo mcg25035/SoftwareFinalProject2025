@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}建立資料夾 - ArchDaily{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="form-header">
+            <h2>建立新資料夾</h2>
+        </div>
+
+        <form method="post" id="createFolderForm">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.name.as_widget | safe }}
+                {% if form.name.errors %}
+                    <div class="error-message">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.description.as_widget | safe }}
+                {% if form.description.errors %}
+                    <div class="error-message">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">建立資料夾</button>
+        </form>
+        <a href="{% url 'folder_list' %}" class="back-link">返回資料夾列表</a>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const form = document.getElementById('createFolderForm');
+                form.addEventListener('submit', function(e) {
+                    const nameField = form.elements.name;
+                    if (!nameField.value.trim()) {
+                        e.preventDefault();
+                        alert('資料夾名稱為必填欄位');
+                        nameField.focus();
+                    }
+                });
+            } catch (error) {
+                console.error('初始化過程中發生錯誤:', error);
+                const errorMessage = document.createElement('div');
+                errorMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background-color: var(--secondary-color); color: white; padding: 15px; border-radius: 5px; z-index: 1000;';
+                errorMessage.textContent = '載入過程中發生錯誤，請重新整理頁面';
+                document.body.appendChild(errorMessage);
+
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 5000);
+            }
+        });
+    </script>
+{% endblock extra_js %} 

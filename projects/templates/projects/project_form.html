@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{% if project_form.instance.pk %}編輯作品{% else %}上傳作品{% endif %} - ArchDaily{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="form-header text-center mb-4">
+        <h2 class="text-primary">{% if project_form.instance.pk %}編輯作品{% else %}上傳新作品{% endif %}</h2>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="p-4 border rounded shadow-sm bg-white">
+        {% csrf_token %}
+
+        <div class="form-group mb-3">
+            <label for="id_title" class="form-label">作品標題</label>
+            {{ project_form.title|add_class:"form-control" }}
+            {% for error in project_form.title.errors %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_project_type" class="form-label">作品類型</label>
+            {{ project_form.project_type|add_class:"form-select" }}
+            {% for error in project_form.project_type.errors %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_region" class="form-label">地區</label>
+            {{ project_form.region|add_class:"form-control" }}
+            {% for error in project_form.region.errors %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_area" class="form-label">面積 (m²)</label>
+            {{ project_form.area|add_class:"form-control" }}
+            {% for error in project_form.area.errors %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_description" class="form-label">作品描述</label>
+            {{ project_form.description|add_class:"form-control"|attr:"rows:5" }}
+            {% for error in project_form.description.errors %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <h4 class="mt-4 mb-3">作品圖片</h4>
+        {{ formset.management_form }}
+        <div id="image-formset-container">
+            {% for form in formset %}
+                <div class="image-form-item border p-3 mb-3 rounded bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="m-0">圖片 {{ forloop.counter }}</h5>
+                        {% if formset.can_delete and form.instance.pk %}
+                            <div class="form-check">
+                                {{ form.DELETE }} 
+                                <label class="form-check-label">刪除</label>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">圖片檔案</label>
+                        {{ form.image|add_class:"form-control" }}
+                        {% for error in form.image.errors %}
+                            <p class="text-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group form-check mb-3">
+                        {{ form.is_key_image }}
+                        <label for="id_form-{{ forloop.counter0 }}-is_key_image" class="form-check-label">設為關鍵圖片</label>
+                        {% for error in form.is_key_image.errors %}
+                            <p class="text-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    {% if form.instance.image %}
+                        <div class="image-preview-item mt-3">
+                            <img src="{{ form.instance.image.url }}" alt="目前圖片" class="img-fluid rounded">
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-image-form" class="btn btn-secondary btn-sm mt-3">添加更多圖片</button>
+
+        <button type="submit" class="btn btn-primary submit-button mt-4 w-100">提交作品</button>
+    </form>
+</div>
+{% endblock content %}
+
+{% block extra_styles %}
+<style>
+    /* 確保作品描述標籤在輸入框上方 */
+    .form-group label[for="id_description"] {
+        display: block; /* 確保標籤獨佔一行 */
+        margin-bottom: 5px; /* 給予一些底部間距 */
+    }
+</style>
+{% endblock extra_styles %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addImageBtn = document.getElementById('add-image-form');
+        const formsetContainer = document.getElementById('image-formset-container');
+        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+
+        if (addImageBtn) {
+            addImageBtn.addEventListener('click', function() {
+                const currentForms = document.querySelectorAll('.image-form-item');
+                let formCount = currentForms.length;
+
+                const newForm = currentForms[0].cloneNode(true);
+                newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)/g, `form-${formCount}`);
+                newForm.innerHTML = newForm.innerHTML.replace(/id_form-(\d+)/g, `id_form-${formCount}`);
+                newForm.innerHTML = newForm.innerHTML.replace(/name="form-(\d+)/g, `name="form-${formCount}`);
+                
+                // Clear input values for new form
+                newForm.querySelectorAll('input').forEach(input => {
+                    if (input.type !== 'checkbox' && input.type !== 'hidden') {
+                        input.value = '';
+                    }
+                    if (input.type === 'checkbox') {
+                        input.checked = false; // Uncheck checkboxes
+                    }
+                });
+                newForm.querySelectorAll('img').forEach(img => img.remove()); // Remove image previews
+                newForm.querySelector('h5').textContent = `圖片 ${formCount + 1}`;
+
+                // For Django's formset, ensure the DELETE checkbox is present for new forms too
+                // if it's an edit view and it was present in the original clone.
+                // We also need to re-add the hidden ID field for new forms if it was removed.
+                const idField = newForm.querySelector('input[name$="-id"]');
+                if (idField) idField.value = ''; // Ensure ID is empty for new forms
+                
+                formsetContainer.appendChild(newForm);
+                totalForms.value = parseInt(totalForms.value) + 1;
+            });
+        }
+    });
+</script>
+{% endblock extra_js %} 

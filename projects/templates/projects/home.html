@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}首頁 - ArchDaily{% endblock %}
+
+{% block content %}
+    <div class="recent-projects">
+        <h2>最新作品</h2>
+        <div class="project-grid">
+            {% for project in recent_projects %}
+                <a href="{% url 'project_detail' project.id %}" class="project-card-link">
+                    <div class="project-card">
+                        {% if project.images.first %}
+                            <img src="{{ project.images.first.image.url }}" alt="{{ project.title }}" loading="lazy">
+                        {% else %}
+                            <!-- 不再渲染 img 標籤，依賴 CSS 處理無圖片情況 -->
+                        {% endif %}
+                        <div class="project-card-content">
+                            <h3>{{ project.title }}</h3>
+                            <p>{{ project.description|truncatechars:100 }}</p>
+                            <p>作者: {{ project.user.username }}</p>
+                            <p>收藏數: {{ project.bookmark_count }}</p>
+                        </div>
+                    </div>
+                </a>
+            {% empty %}
+            <p>目前沒有作品。</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_styles %}{% endblock extra_styles %} 
