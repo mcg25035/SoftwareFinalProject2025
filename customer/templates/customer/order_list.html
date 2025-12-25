@@ -1,0 +1,58 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}我的訂單 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>我的訂單</h2>
+
+{% if orders %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>訂單編號</th>
+            <th>訂單日期</th>
+            <th>總金額</th>
+            <th>狀態</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_number }}</td>
+            <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+            <td>NT$ {{ order.total_amount }}</td>
+            <td>
+                <span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'paid' %}success{% elif order.status == 'delivered' %}info{% else %}secondary{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+            </td>
+            <td>
+                <a href="{% url 'customer:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">查看詳情</a>
+                {% if order.status == 'pending' %}
+                <a href="{% url 'payment:process_payment' order.id %}" class="btn btn-sm btn-success">付款</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if orders.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if orders.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ orders.previous_page_number }}">上一頁</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ orders.number }} / {{ orders.paginator.num_pages }}</span></li>
+        {% if orders.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ orders.next_page_number }}">下一頁</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="alert alert-info">目前沒有訂單</div>
+{% endif %}
+{% endblock %}
+

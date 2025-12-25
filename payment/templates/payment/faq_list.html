@@ -1,0 +1,44 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}常見問題 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>常見問題</h2>
+
+<div class="mb-3">
+    <select class="form-select" style="width: auto; display: inline-block;" onchange="window.location.href='?category='+this.value">
+        <option value="">全部分類</option>
+        <option value="payment" {% if category_filter == 'payment' %}selected{% endif %}>付款相關</option>
+        <option value="order" {% if category_filter == 'order' %}selected{% endif %}>訂單相關</option>
+        <option value="refund" {% if category_filter == 'refund' %}selected{% endif %}>退款相關</option>
+        <option value="product" {% if category_filter == 'product' %}selected{% endif %}>商品相關</option>
+        <option value="account" {% if category_filter == 'account' %}selected{% endif %}>帳號相關</option>
+        <option value="other" {% if category_filter == 'other' %}selected{% endif %}>其他</option>
+    </select>
+</div>
+
+<div class="accordion" id="faqAccordion">
+    {% for faq in faqs %}
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ faq.id }}">
+                <span class="badge bg-secondary me-2">{{ faq.get_category_display }}</span>
+                {{ faq.question }}
+            </button>
+        </h2>
+        <div id="faq{{ faq.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+                {{ faq.answer|linebreaks }}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">目前沒有常見問題</div>
+    {% endfor %}
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'payment:create_ticket' %}" class="btn btn-primary">如果找不到答案，請聯絡客服</a>
+</div>
+{% endblock %}
+

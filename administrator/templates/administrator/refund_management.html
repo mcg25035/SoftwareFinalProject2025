@@ -1,0 +1,105 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}退款管理 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>退款管理</h2>
+
+<div class="mb-3">
+    <select class="form-select" style="width: auto; display: inline-block;" onchange="window.location.href='?status='+this.value">
+        <option value="">全部狀態</option>
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>待處理</option>
+        <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>處理中</option>
+        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>已完成</option>
+        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>已拒絕</option>
+    </select>
+</div>
+
+{% if refunds %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>退款編號</th>
+            <th>訂單編號</th>
+            <th>金額</th>
+            <th>狀態</th>
+            <th>申請時間</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for refund in refunds %}
+        <tr>
+            <td>{{ refund.refund_id }}</td>
+            <td>{{ refund.order.order_number }}</td>
+            <td>NT$ {{ refund.amount }}</td>
+            <td>
+                <span class="badge bg-{% if refund.status == 'pending' %}warning{% elif refund.status == 'completed' %}success{% elif refund.status == 'rejected' %}danger{% else %}info{% endif %}">
+                    {{ refund.get_status_display }}
+                </span>
+            </td>
+            <td>{{ refund.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#refundModal{{ refund.id }}">
+                    查看詳情
+                </button>
+            </td>
+        </tr>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="refundModal{{ refund.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">退款詳情</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>退款編號：</strong>{{ refund.refund_id }}</p>
+                        <p><strong>訂單編號：</strong>{{ refund.order.order_number }}</p>
+                        <p><strong>金額：</strong>NT$ {{ refund.amount }}</p>
+                        <p><strong>狀態：</strong>{{ refund.get_status_display }}</p>
+                        <p><strong>退款原因：</strong></p>
+                        <p>{{ refund.reason }}</p>
+                        <p><strong>申請時間：</strong>{{ refund.created_at|date:"Y-m-d H:i" }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        {% if refund.status == 'pending' %}
+                        <form method="post" action="{% url 'administrator:process_refund' refund.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn-success">核准退款</button>
+                        </form>
+                        <form method="post" action="{% url 'administrator:process_refund' refund.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-danger">拒絕退款</button>
+                        </form>
+                        {% endif %}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if refunds.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if refunds.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ refunds.previous_page_number }}">上一頁</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ refunds.number }} / {{ refunds.paginator.num_pages }}</span></li>
+        {% if refunds.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ refunds.next_page_number }}">下一頁</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="alert alert-info">目前沒有退款申請</div>
+{% endif %}
+{% endblock %}
+

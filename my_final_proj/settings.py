@@ -42,6 +42,11 @@ INSTALLED_APPS = [
     "ckeditor",
     "ckeditor_uploader",
     "widget_tweaks",
+    # FOMO 系統子系統
+    "administrator",
+    "customer",
+    "payment",
+    "database.apps.DatabaseConfig",  # 使用 AppConfig 以啟用信號
 ]
 
 MIDDLEWARE = [
@@ -107,9 +112,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "zh-hant"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Taipei"
 
 USE_I18N = True
 

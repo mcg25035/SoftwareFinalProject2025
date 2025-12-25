@@ -1,0 +1,196 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}{{ product.name }} - FOMO 購物{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
+        {% else %}
+        <div class="bg-secondary d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+            <i class="bi bi-image text-white" style="font-size: 5rem;"></i>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-6">
+        <h1>{{ product.name }}</h1>
+        <p class="text-muted">{{ product.description }}</p>
+        
+        <div class="mb-3">
+            <span class="h3 text-primary">NT$ {{ product.price }}</span>
+            {% if product.average_rating > 0 %}
+            <span class="ms-3 text-warning">
+                <i class="bi bi-star-fill"></i> {{ product.average_rating|floatformat:1 }}
+            </span>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <p><strong>庫存：</strong> 
+                {% if product.stock > 0 %}
+                <span class="text-success">{{ product.stock }} 件</span>
+                {% else %}
+                <span class="text-danger">缺貨</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'customer:add_to_cart' product.pk %}" class="mb-3">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ product.stock }}">
+                <button type="submit" class="btn btn-primary" {% if product.stock == 0 %}disabled{% endif %}>
+                    <i class="bi bi-cart-plus"></i> 加入購物車
+                </button>
+            </div>
+        </form>
+        
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-danger" onclick="toggleFavorite({{ product.pk }})" id="favorite-btn">
+                <i class="bi {% if is_favorited %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                <span id="favorite-text">{% if is_favorited %}已收藏{% else %}收藏{% endif %}</span>
+            </button>
+            <button class="btn btn-outline-info" onclick="toggleTrack({{ product.pk }})" id="track-btn">
+                <i class="bi bi-bell"></i>
+                <span id="track-text">追蹤</span>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<hr class="my-5">
+
+<div class="row">
+    <div class="col-md-8">
+        <h3>商品問答</h3>
+        {% if user.is_authenticated %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>我要提問</h5>
+                <form method="post" action="{% url 'customer:ask_question' product.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <textarea name="question" class="form-control" rows="3" placeholder="請輸入您的問題..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交問題</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% for question in questions %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <strong>{{ question.user.username }}</strong>
+                    <small class="text-muted">{{ question.created_at|date:"Y-m-d H:i" }}</small>
+                </div>
+                <p class="mb-2"><strong>Q:</strong> {{ question.question }}</p>
+                {% if question.answer %}
+                <div class="alert alert-info mb-0">
+                    <strong>A:</strong> {{ question.answer }}
+                    {% if question.answered_by %}
+                    <br><small class="text-muted">回答者: {{ question.answered_by.username }} ({{ question.answered_at|date:"Y-m-d H:i" }})</small>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-muted mb-0"><em>等待回覆中...</em></p>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">目前沒有問題</p>
+        {% endfor %}
+        
+        <hr class="my-5">
+        
+        <h3>商品評價</h3>
+        {% for review in reviews %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <strong>{{ review.user.username }}</strong>
+                    <span class="text-warning">
+                        {% for i in "12345" %}
+                        <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill{% endif %}"></i>
+                        {% endfor %}
+                    </span>
+                </div>
+                <p class="mt-2">{{ review.comment }}</p>
+                <small class="text-muted">{{ review.created_at|date:"Y-m-d H:i" }}</small>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">目前沒有評價</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% if related_products %}
+<hr class="my-5">
+<h3>相關商品</h3>
+<div class="row">
+    {% for related in related_products %}
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            {% if related.image %}
+            <img src="{{ related.image.url }}" class="card-img-top" alt="{{ related.name }}" style="height: 150px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h6 class="card-title">{{ related.name }}</h6>
+                <p class="text-primary">NT$ {{ related.price }}</p>
+                <a href="{% url 'customer:product_detail' related.pk %}" class="btn btn-sm btn-outline-primary">查看</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+function toggleFavorite(productId) {
+    fetch(`/customer/products/${productId}/favorite/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        const btn = document.getElementById('favorite-btn');
+        const text = document.getElementById('favorite-text');
+        if (data.is_favorited) {
+            btn.innerHTML = '<i class="bi bi-heart-fill"></i> <span id="favorite-text">已收藏</span>';
+            btn.classList.add('active');
+        } else {
+            btn.innerHTML = '<i class="bi bi-heart"></i> <span id="favorite-text">收藏</span>';
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function toggleTrack(productId) {
+    fetch(`/customer/products/${productId}/track/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: new FormData()
+    })
+    .then(response => response.json())
+    .then(data => {
+        const btn = document.getElementById('track-btn');
+        if (data.is_tracked) {
+            btn.innerHTML = '<i class="bi bi-bell-fill"></i> <span id="track-text">已追蹤</span>';
+            btn.classList.add('active');
+        }
+    });
+}
+</script>
+{% endblock %}
+

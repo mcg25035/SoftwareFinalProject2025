@@ -1,0 +1,35 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}申請退款 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>申請退款</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">訂單資訊</div>
+            <div class="card-body">
+                <p><strong>訂單編號：</strong>{{ order.order_number }}</p>
+                <p><strong>訂單金額：</strong>NT$ {{ order.total_amount }}</p>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">退款申請</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">退款原因</label>
+                        <textarea name="reason" class="form-control" rows="5" required placeholder="請詳細說明退款原因..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交申請</button>
+                    <a href="{% url 'customer:order_detail' order.id %}" class="btn btn-outline-secondary">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

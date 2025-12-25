@@ -1,0 +1,41 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}付款 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>付款</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">訂單資訊</div>
+            <div class="card-body">
+                <p><strong>訂單編號：</strong>{{ order.order_number }}</p>
+                <p><strong>總金額：</strong>NT$ {{ order.total_amount }}</p>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">選擇付款方式</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for method in methods %}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment_method" id="method{{ method.id }}" value="{{ method.id }}" required>
+                        <label class="form-check-label" for="method{{ method.id }}">
+                            <strong>{{ method.name }}</strong>
+                            {% if method.description %}
+                            <p class="text-muted mb-0">{{ method.description }}</p>
+                            {% endif %}
+                        </label>
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">確認付款</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

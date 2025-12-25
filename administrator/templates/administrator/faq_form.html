@@ -1,0 +1,54 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}{% if faq %}編輯 FAQ{% else %}新增 FAQ{% endif %} - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>{% if faq %}編輯 FAQ{% else %}新增 FAQ{% endif %}</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">分類</label>
+                        <select name="category" class="form-select" required>
+                            <option value="payment" {% if faq and faq.category == 'payment' %}selected{% endif %}>付款相關</option>
+                            <option value="order" {% if faq and faq.category == 'order' %}selected{% endif %}>訂單相關</option>
+                            <option value="refund" {% if faq and faq.category == 'refund' %}selected{% endif %}>退款相關</option>
+                            <option value="product" {% if faq and faq.category == 'product' %}selected{% endif %}>商品相關</option>
+                            <option value="account" {% if faq and faq.category == 'account' %}selected{% endif %}>帳號相關</option>
+                            <option value="other" {% if faq and faq.category == 'other' %}selected{% endif %}>其他</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">問題</label>
+                        <input type="text" name="question" class="form-control" value="{% if faq %}{{ faq.question }}{% endif %}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">回答</label>
+                        <textarea name="answer" class="form-control" rows="8" required>{% if faq %}{{ faq.answer }}{% endif %}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">排序</label>
+                            <input type="number" name="order" class="form-control" value="{% if faq %}{{ faq.order }}{% else %}0{% endif %}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">狀態</label>
+                            <div class="form-check">
+                                <input type="checkbox" name="is_active" class="form-check-input" {% if not faq or faq.is_active %}checked{% endif %}>
+                                <label class="form-check-label">啟用</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">儲存</button>
+                    <a href="{% url 'administrator:faq_management' %}" class="btn btn-outline-secondary">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

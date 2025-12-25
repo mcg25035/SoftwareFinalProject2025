@@ -1,0 +1,99 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}工單詳情 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>工單詳情 #{{ ticket.id }}</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <span>{{ ticket.subject }}</span>
+                    <span class="badge bg-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'in_progress' %}info{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                        {{ ticket.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p><strong>使用者:</strong> {{ ticket.user.username }}</p>
+                <p><strong>優先級:</strong> 
+                    <span class="badge bg-{% if ticket.priority == 'urgent' %}danger{% elif ticket.priority == 'high' %}warning{% elif ticket.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                        {{ ticket.get_priority_display }}
+                    </span>
+                </p>
+                <p><strong>問題描述:</strong></p>
+                <p>{{ ticket.description|linebreaks }}</p>
+                {% if ticket.related_order %}
+                <p><strong>相關訂單:</strong> <a href="{% url 'administrator:order_detail' ticket.related_order.id %}">{{ ticket.related_order.order_number }}</a></p>
+                {% endif %}
+                <p><strong>指派給:</strong> {{ ticket.assigned_to.username|default:"未指派" }}</p>
+                <p><strong>建立時間:</strong> {{ ticket.created_at|date:"Y-m-d H:i" }}</p>
+                {% if ticket.resolved_at %}
+                <p><strong>解決時間:</strong> {{ ticket.resolved_at|date:"Y-m-d H:i" }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">對話記錄</div>
+            <div class="card-body">
+                {% for message in messages %}
+                <div class="mb-3 {% if message.is_from_staff %}border-start border-primary ps-3{% endif %}">
+                    <div class="d-flex justify-content-between">
+                        <strong>{% if message.is_from_staff %}客服 ({{ message.user.username }}){% else %}{{ message.user.username }}{% endif %}</strong>
+                        <small class="text-muted">{{ message.created_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+                    <p class="mb-0 mt-1">{{ message.message|linebreaks }}</p>
+                </div>
+                {% empty %}
+                <p class="text-muted">目前沒有對話記錄</p>
+                {% endfor %}
+                
+                {% if ticket.status != 'closed' %}
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reply">
+                    <div class="mb-2">
+                        <textarea name="message" class="form-control" rows="3" placeholder="輸入回覆訊息..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">發送回覆</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">操作</div>
+            <div class="card-body">
+                {% if ticket.status != 'closed' %}
+                <form method="post" class="mb-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="assign">
+                    <button type="submit" class="btn btn-outline-primary w-100">指派給我</button>
+                </form>
+                
+                {% if ticket.status != 'resolved' %}
+                <form method="post" class="mb-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="resolve">
+                    <button type="submit" class="btn btn-success w-100">標記為已解決</button>
+                </form>
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="close">
+                    <button type="submit" class="btn btn-secondary w-100">關閉工單</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

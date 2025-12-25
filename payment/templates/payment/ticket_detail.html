@@ -1,0 +1,64 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}工單詳情 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>工單詳情 #{{ ticket.id }}</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <span>{{ ticket.subject }}</span>
+                    <span class="badge bg-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'in_progress' %}info{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                        {{ ticket.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p><strong>優先級:</strong> 
+                    <span class="badge bg-{% if ticket.priority == 'urgent' %}danger{% elif ticket.priority == 'high' %}warning{% elif ticket.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                        {{ ticket.get_priority_display }}
+                    </span>
+                </p>
+                <p><strong>問題描述:</strong></p>
+                <p>{{ ticket.description|linebreaks }}</p>
+                {% if ticket.related_order %}
+                <p><strong>相關訂單:</strong> <a href="{% url 'customer:order_detail' ticket.related_order.id %}">{{ ticket.related_order.order_number }}</a></p>
+                {% endif %}
+                <p><strong>建立時間:</strong> {{ ticket.created_at|date:"Y-m-d H:i" }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">對話記錄</div>
+            <div class="card-body">
+                {% for message in messages %}
+                <div class="mb-3 {% if message.is_from_staff %}border-start border-primary ps-3{% endif %}">
+                    <div class="d-flex justify-content-between">
+                        <strong>{% if message.is_from_staff %}客服{% else %}{{ message.user.username }}{% endif %}</strong>
+                        <small class="text-muted">{{ message.created_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+                    <p class="mb-0 mt-1">{{ message.message|linebreaks }}</p>
+                </div>
+                {% empty %}
+                <p class="text-muted">目前沒有對話記錄</p>
+                {% endfor %}
+                
+                {% if ticket.status != 'closed' %}
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <textarea name="message" class="form-control" rows="3" placeholder="輸入您的訊息..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">發送訊息</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

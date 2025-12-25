@@ -1,0 +1,56 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}追蹤商品 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>追蹤商品</h2>
+
+{% if trackings %}
+<div class="row">
+    {% for tracking in trackings %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            {% if tracking.product.image %}
+            <img src="{{ tracking.product.image.url }}" class="card-img-top" alt="{{ tracking.product.name }}" style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ tracking.product.name }}</h5>
+                <p class="text-primary mb-2">NT$ {{ tracking.product.price }}</p>
+                <div class="mb-2">
+                    <small class="text-muted">
+                        {% if tracking.track_price %}<i class="bi bi-check-circle text-success"></i> 價格{% endif %}
+                        {% if tracking.track_stock %}<i class="bi bi-check-circle text-success"></i> 庫存{% endif %}
+                        {% if tracking.track_status %}<i class="bi bi-check-circle text-success"></i> 狀態{% endif %}
+                    </small>
+                </div>
+                <div class="mt-auto">
+                    <a href="{% url 'customer:product_detail' tracking.product.pk %}" class="btn btn-primary w-100 mb-2">查看詳情</a>
+                    <form method="post" action="{% url 'customer:untrack_product' tracking.product.pk %}" class="d-inline w-100">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger w-100">取消追蹤</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if trackings.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if trackings.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ trackings.previous_page_number }}">上一頁</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ trackings.number }} / {{ trackings.paginator.num_pages }}</span></li>
+        {% if trackings.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ trackings.next_page_number }}">下一頁</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="alert alert-info">目前沒有追蹤的商品</div>
+{% endif %}
+{% endblock %}
+

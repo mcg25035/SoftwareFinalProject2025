@@ -1,0 +1,57 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}退款列表 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>退款列表</h2>
+
+{% if refunds %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>退款編號</th>
+            <th>訂單編號</th>
+            <th>金額</th>
+            <th>狀態</th>
+            <th>申請時間</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for refund in refunds %}
+        <tr>
+            <td>{{ refund.refund_id }}</td>
+            <td>{{ refund.order.order_number }}</td>
+            <td>NT$ {{ refund.amount }}</td>
+            <td>
+                <span class="badge bg-{% if refund.status == 'pending' %}warning{% elif refund.status == 'completed' %}success{% elif refund.status == 'rejected' %}danger{% else %}info{% endif %}">
+                    {{ refund.get_status_display }}
+                </span>
+            </td>
+            <td>{{ refund.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                <a href="{% url 'payment:refund_detail' refund.id %}" class="btn btn-sm btn-outline-primary">查看詳情</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if refunds.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if refunds.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ refunds.previous_page_number }}">上一頁</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ refunds.number }} / {{ refunds.paginator.num_pages }}</span></li>
+        {% if refunds.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ refunds.next_page_number }}">下一頁</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="alert alert-info">目前沒有退款記錄</div>
+{% endif %}
+{% endblock %}
+

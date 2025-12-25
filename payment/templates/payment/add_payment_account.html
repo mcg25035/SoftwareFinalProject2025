@@ -1,0 +1,92 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}新增付款帳號 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>新增付款帳號</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="paymentAccountForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">付款方式 <span class="text-danger">*</span></label>
+                        <select name="payment_method" class="form-select" id="paymentMethod" required onchange="updateFormFields()">
+                            <option value="">請選擇付款方式</option>
+                            {% for method in methods %}
+                            <option value="{{ method.id }}" data-code="{{ method.code }}">{{ method.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">帳號名稱 <span class="text-danger">*</span></label>
+                        <input type="text" name="account_name" class="form-control" required placeholder="例如: 我的信用卡">
+                    </div>
+                    
+                    <!-- 信用卡資訊 -->
+                    <div id="creditCardFields" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">卡號</label>
+                            <input type="text" name="card_number" class="form-control" placeholder="**** **** **** ****">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">持卡人姓名</label>
+                            <input type="text" name="card_holder" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">有效期限</label>
+                            <input type="text" name="expiry_date" class="form-control" placeholder="MM/YY">
+                        </div>
+                    </div>
+                    
+                    <!-- 銀行轉帳資訊 -->
+                    <div id="bankTransferFields" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">銀行名稱</label>
+                            <input type="text" name="bank_name" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">帳號</label>
+                            <input type="text" name="account_number" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">戶名</label>
+                            <input type="text" name="account_holder" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_default" class="form-check-input" id="isDefault">
+                            <label class="form-check-label" for="isDefault">設為預設付款帳號</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">儲存</button>
+                    <a href="{% url 'payment:payment_accounts' %}" class="btn btn-outline-secondary">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateFormFields() {
+    const select = document.getElementById('paymentMethod');
+    const selectedOption = select.options[select.selectedIndex];
+    const code = selectedOption.getAttribute('data-code');
+    
+    document.getElementById('creditCardFields').style.display = 'none';
+    document.getElementById('bankTransferFields').style.display = 'none';
+    
+    if (code === 'credit_card') {
+        document.getElementById('creditCardFields').style.display = 'block';
+    } else if (code === 'bank_transfer') {
+        document.getElementById('bankTransferFields').style.display = 'block';
+    }
+}
+</script>
+{% endblock %}
+

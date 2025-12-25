@@ -1,0 +1,57 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}結帳 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>結帳</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">配送資訊</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">配送地址</label>
+                        <textarea name="shipping_address" class="form-control" rows="3" required>{{ profile.address }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">聯絡電話</label>
+                        <input type="text" name="shipping_phone" class="form-control" value="{{ profile.phone }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">優惠券代碼（選填）</label>
+                        <input type="text" name="coupon_code" class="form-control" placeholder="輸入優惠券代碼">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">備註（選填）</label>
+                        <textarea name="notes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">確認訂單</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">訂單摘要</div>
+            <div class="card-body">
+                {% for item in cart_items %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ item.product.name }} x{{ item.quantity }}</span>
+                    <span>NT$ {{ item.subtotal }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>總計：</strong>
+                    <strong class="text-primary">NT$ {{ total }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

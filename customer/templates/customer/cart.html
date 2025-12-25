@@ -1,0 +1,70 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}購物車 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>購物車</h2>
+
+{% if cart_items %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>商品</th>
+            <th>單價</th>
+            <th>數量</th>
+            <th>小計</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart_items %}
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 80px; height: 80px; object-fit: cover;" class="me-3">
+                    {% endif %}
+                    <div>
+                        <strong>{{ item.product.name }}</strong>
+                        <p class="text-muted mb-0">{{ item.product.description|truncatewords:10 }}</p>
+                    </div>
+                </div>
+            </td>
+            <td>NT$ {{ item.product.price }}</td>
+            <td>
+                <form method="post" action="{% url 'customer:update_cart' item.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="form-control" style="width: 80px;" onchange="this.form.submit()">
+                </form>
+            </td>
+            <td>NT$ {{ item.subtotal }}</td>
+            <td>
+                <form method="post" action="{% url 'customer:remove_from_cart' item.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-end"><strong>總計：</strong></td>
+            <td><strong class="text-primary">NT$ {{ total }}</strong></td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="text-end">
+    <a href="{% url 'customer:product_list' %}" class="btn btn-outline-secondary">繼續購物</a>
+    <a href="{% url 'customer:checkout' %}" class="btn btn-primary">前往結帳</a>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <p>購物車是空的</p>
+    <a href="{% url 'customer:product_list' %}" class="btn btn-primary">開始購物</a>
+</div>
+{% endif %}
+{% endblock %}
+

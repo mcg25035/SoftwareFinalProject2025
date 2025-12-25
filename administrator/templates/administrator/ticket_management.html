@@ -1,0 +1,82 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}客服工單管理 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>客服工單管理</h2>
+
+<div class="d-flex gap-2 mb-3">
+    <select class="form-select" style="width: auto;" onchange="window.location.href='?status='+this.value+'&priority='+document.getElementById('priorityFilter').value">
+        <option value="">全部狀態</option>
+        <option value="open" {% if status_filter == 'open' %}selected{% endif %}>開啟</option>
+        <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>處理中</option>
+        <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>已解決</option>
+        <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>已關閉</option>
+    </select>
+    <select id="priorityFilter" class="form-select" style="width: auto;" onchange="window.location.href='?status='+document.querySelector('select').value+'&priority='+this.value">
+        <option value="">全部優先級</option>
+        <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %}>緊急</option>
+        <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>高</option>
+        <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>中</option>
+        <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>低</option>
+    </select>
+</div>
+
+{% if tickets %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>工單編號</th>
+            <th>使用者</th>
+            <th>主旨</th>
+            <th>優先級</th>
+            <th>狀態</th>
+            <th>指派給</th>
+            <th>建立時間</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ticket in tickets %}
+        <tr>
+            <td>#{{ ticket.id }}</td>
+            <td>{{ ticket.user.username }}</td>
+            <td>{{ ticket.subject }}</td>
+            <td>
+                <span class="badge bg-{% if ticket.priority == 'urgent' %}danger{% elif ticket.priority == 'high' %}warning{% elif ticket.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                    {{ ticket.get_priority_display }}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'in_progress' %}info{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                    {{ ticket.get_status_display }}
+                </span>
+            </td>
+            <td>{{ ticket.assigned_to.username|default:"未指派" }}</td>
+            <td>{{ ticket.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                <a href="{% url 'administrator:ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-primary">查看詳情</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if tickets.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if tickets.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ tickets.previous_page_number }}">上一頁</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ tickets.number }} / {{ tickets.paginator.num_pages }}</span></li>
+        {% if tickets.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ tickets.next_page_number }}">下一頁</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="alert alert-info">目前沒有工單</div>
+{% endif %}
+{% endblock %}
+

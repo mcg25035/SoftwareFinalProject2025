@@ -1,0 +1,122 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}管理後台 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>管理後台</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">總訂單數</h5>
+                <h2>{{ total_orders }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">總營收</h5>
+                <h2>NT$ {{ total_revenue|floatformat:0 }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">今日訂單</h5>
+                <h2>{{ today_orders }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">今日營收</h5>
+                <h2>NT$ {{ today_revenue|floatformat:0 }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <span>最近訂單</span>
+                <a href="{% url 'administrator:order_management' %}" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>訂單編號</th>
+                            <th>金額</th>
+                            <th>狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>{{ order.order_number }}</td>
+                            <td>NT$ {{ order.total_amount }}</td>
+                            <td><span class="badge bg-secondary">{{ order.get_status_display }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <span>熱門商品</span>
+                <a href="{% url 'administrator:product_management' %}" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>商品名稱</th>
+                            <th>訂單數</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in popular_products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.order_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <div class="alert alert-warning">
+        <strong>待處理事項：</strong>
+        {% if pending_orders > 0 %}
+        <a href="{% url 'administrator:order_management' %}?status=pending" class="me-3">{{ pending_orders }} 筆待付款訂單</a>
+        {% endif %}
+        {% if pending_refunds > 0 %}
+        <a href="{% url 'administrator:refund_management' %}?status=pending" class="me-3">{{ pending_refunds }} 筆待處理退款</a>
+        {% endif %}
+        {% if pending_questions > 0 %}
+        <a href="{% url 'administrator:question_management' %}?status=unanswered" class="me-3">{{ pending_questions }} 筆待回答問題</a>
+        {% endif %}
+        {% if pending_tickets > 0 %}
+        <a href="{% url 'administrator:ticket_management' %}?status=open" class="me-3">{{ pending_tickets }} 筆待處理工單</a>
+        {% endif %}
+        {% if pending_orders == 0 and pending_refunds == 0 and pending_questions == 0 and pending_tickets == 0 %}
+        <span class="text-success">目前沒有待處理事項</span>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

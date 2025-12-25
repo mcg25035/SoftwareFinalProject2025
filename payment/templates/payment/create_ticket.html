@@ -1,0 +1,62 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}建立客服工單 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>建立客服工單</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">主旨 <span class="text-danger">*</span></label>
+                        <input type="text" name="subject" class="form-control" required placeholder="請簡述您的問題">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">問題描述 <span class="text-danger">*</span></label>
+                        <textarea name="description" class="form-control" rows="6" required placeholder="請詳細描述您的問題..."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">優先級</label>
+                            <select name="priority" class="form-select">
+                                <option value="low">低</option>
+                                <option value="medium" selected>中</option>
+                                <option value="high">高</option>
+                                <option value="urgent">緊急</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">相關訂單（選填）</label>
+                            <select name="order_id" class="form-select">
+                                <option value="">無</option>
+                                {% for order in orders %}
+                                <option value="{{ order.id }}">{{ order.order_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交工單</button>
+                    <a href="{% url 'payment:ticket_list' %}" class="btn btn-outline-secondary">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">提示</div>
+            <div class="card-body">
+                <p>在提交工單前，您可以先查看：</p>
+                <ul>
+                    <li><a href="{% url 'payment:faq_list' %}">常見問題</a></li>
+                </ul>
+                <p class="mt-3">我們會在收到工單後盡快回覆您。</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

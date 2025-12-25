@@ -1,0 +1,59 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}付款帳號管理 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>付款帳號管理</h2>
+
+<div class="mb-3">
+    <a href="{% url 'payment:add_payment_account' %}" class="btn btn-primary">新增付款帳號</a>
+</div>
+
+{% if accounts %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>帳號名稱</th>
+            <th>付款方式</th>
+            <th>狀態</th>
+            <th>建立時間</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for account in accounts %}
+        <tr>
+            <td>
+                {{ account.account_name }}
+                {% if account.is_default %}
+                <span class="badge bg-primary">預設</span>
+                {% endif %}
+            </td>
+            <td>{{ account.payment_method.name }}</td>
+            <td>
+                <span class="badge bg-{% if account.is_active %}success{% else %}secondary{% endif %}">
+                    {% if account.is_active %}啟用{% else %}停用{% endif %}
+                </span>
+            </td>
+            <td>{{ account.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                {% if not account.is_default %}
+                <form method="post" action="{% url 'payment:set_default_account' account.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary">設為預設</button>
+                </form>
+                {% endif %}
+                <form method="post" action="{% url 'payment:delete_payment_account' account.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('確定要刪除這個付款帳號嗎？')">刪除</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">目前沒有付款帳號</div>
+{% endif %}
+{% endblock %}
+

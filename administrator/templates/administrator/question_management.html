@@ -1,0 +1,96 @@
+{% extends 'base_fomo.html' %}
+
+{% block title %}問答管理 - FOMO 購物{% endblock %}
+
+{% block content %}
+<h2>問答管理</h2>
+
+<div class="mb-3">
+    <select class="form-select" style="width: auto; display: inline-block;" onchange="window.location.href='?status='+this.value">
+        <option value="">全部</option>
+        <option value="answered" {% if status_filter == 'answered' %}selected{% endif %}>已回答</option>
+        <option value="unanswered" {% if status_filter == 'unanswered' %}selected{% endif %}>未回答</option>
+    </select>
+</div>
+
+{% if questions %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>商品</th>
+            <th>提問者</th>
+            <th>問題</th>
+            <th>回答</th>
+            <th>提問時間</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions %}
+        <tr>
+            <td>{{ question.product.name }}</td>
+            <td>{{ question.user.username }}</td>
+            <td>{{ question.question|truncatewords:10 }}</td>
+            <td>
+                {% if question.answer %}
+                <span class="badge bg-success">已回答</span>
+                <p class="mb-0 mt-1">{{ question.answer|truncatewords:10 }}</p>
+                {% else %}
+                <span class="badge bg-warning">待回答</span>
+                {% endif %}
+            </td>
+            <td>{{ question.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#answerModal{{ question.id }}">
+                    {% if question.answer %}編輯回答{% else %}回答{% endif %}
+                </button>
+            </td>
+        </tr>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="answerModal{{ question.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">回答問題</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>商品:</strong> {{ question.product.name }}</p>
+                        <p><strong>提問者:</strong> {{ question.user.username }}</p>
+                        <p><strong>問題:</strong></p>
+                        <p>{{ question.question }}</p>
+                        <form method="post" action="{% url 'administrator:answer_question' question.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">回答</label>
+                                <textarea name="answer" class="form-control" rows="5" required>{{ question.answer }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">儲存回答</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if questions.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if questions.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ questions.previous_page_number }}">上一頁</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ questions.number }} / {{ questions.paginator.num_pages }}</span></li>
+        {% if questions.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ questions.next_page_number }}">下一頁</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="alert alert-info">目前沒有問題</div>
+{% endif %}
+{% endblock %}
+

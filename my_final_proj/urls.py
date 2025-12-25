@@ -25,6 +25,10 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')), # Django's built-in authentication URLs
     path('', include('projects.urls')), # Include projects app URLs
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    # FOMO 系統子系統
+    path('customer/', include('customer.urls')),
+    path('payment/', include('payment.urls')),
+    path('administrator/', include('administrator.urls')),
 ]
 
 if settings.DEBUG:
